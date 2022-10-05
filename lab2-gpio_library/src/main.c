@@ -22,12 +22,13 @@
 /* Includes ----------------------------------------------------------*/
 #include <avr/io.h>     // AVR device-specific IO definitions
 #include <util/delay.h> // Functions for busy-wait delay loops
+#include <gpio.h> // gpio library 
 
 
 // -----
 // This part is needed to use Arduino functions but also physical pin
 // names. We are using Arduino-style just to simplify the first lab.
-#include "Arduino.h"
+//#include "Arduino.h"
 #define PB5 13          // In Arduino world, PB5 is called "13"
 #define PB0 8
 // -----
@@ -41,29 +42,62 @@
  **********************************************************************/
 int main(void)
 {
-    uint8_t led_value = LOW;  // Local variable to keep LED status
+    uint8_t led_value = 0;  // Local variable to keep LED status
 
     // Set pin where on-board LED is connected as output
-    pinMode(LED_GREEN, OUTPUT);
+    //pinMode(LED_GREEN, OUTPUT);
     // Set second pin as output
-    pinMode(LED_RED, OUTPUT);
+    //pinMode(LED_RED, OUTPUT);
 
+    //ver 2 : low level register style 
+    //DDRB = DDRB | (1<<LED_GREEN);
+    //   0100 1101 
+    // | 0010 0000 
+    // ------------
+    //   0110 1101
+
+    //DDRB = DDRB | (1<<LED_RED); // same operation here
+
+
+    // ver 3 : GPIO LIB 
+    GPIO_mode_output(&DDRB, LED_GREEN);
+    GPIO_mode_output(&DDRB, LED_RED);
     // Infinite loop
     while (1)
     {
         // Turn ON/OFF on-board LED ...
-        digitalWrite(LED_GREEN, led_value);
+        //digitalWrite(LED_GREEN, led_value);
         // ... and external LED as well
-        digitalWrite(LED_RED, led_value);
+        //digitalWrite(LED_RED, led_value);
 
         // Pause several milliseconds
         _delay_ms(SHORT_DELAY);
 
         // Change LED value
-        if (led_value == LOW)
-            led_value = HIGH;
+        if (led_value == 00){
+          led_value = 1;
+
+          //PORTB = PORTB | ( 1 << LED_GREEN);
+          //PORTB = PORTB | ( 1 << LED_RED);
+          // vers 3 
+          GPIO_write_high(&PORTB, LED_GREEN);
+          GPIO_write_high(&PORTB, LED_RED);
+
+        }
+
+            //led_value = HIGH;
         else
-            led_value = LOW;
+            led_value = 0;
+          //PORTB = PORTB & ~(1<<LED_GREEN);
+        //   0111 1101 
+        // & 1101 1111
+        // ------------
+        //   0101 1101
+          //PORTB = PORTB & ~(1<<LED_RED);
+
+          //ver 3
+          GPIO_write_low(&PORTB, LED_GREEN);
+          GPIO_write_low(&PORTB, LED_RED);
     }
 
     // Will never reach this
