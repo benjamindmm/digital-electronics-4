@@ -55,7 +55,7 @@ int main(void)
     // | 0010 0000 
     // ------------
     //   0110 1101
-
+  
     //DDRB = DDRB | (1<<LED_RED); // same operation here
 
 
@@ -76,7 +76,7 @@ int main(void)
         // Change LED value
         if (led_value == 00){
           led_value = 1;
-
+          // vers 2
           //PORTB = PORTB | ( 1 << LED_GREEN);
           //PORTB = PORTB | ( 1 << LED_RED);
           // vers 3 
