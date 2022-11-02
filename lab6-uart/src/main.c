@@ -70,6 +70,48 @@ int main(void)
 ISR(TIMER1_OVF_vect)
 {
     // Transmit UART string(s)
-    uart_puts("Paris\r\n");
+    // uart_puts("Paris\r\n");
 
+    uint8_t value;
+    uint8_t even=0;
+    char string[8];  // String for converted numbers by itoa()
+
+    value = uart_getc();
+    if (value != '\0') {  // Data available from UART
+        // Display ASCII code of received character
+        uart_putc(value);
+        itoa(value,string,10);
+        uart_puts("\t");
+        uart_puts(string);
+
+        itoa(value,string,16);
+        uart_puts("\t");
+        uart_puts(string);
+
+        itoa(value,string,2);
+        uart_puts("\t0b ");
+        uart_puts(string);
+
+      //get the even parity
+
+        // EVen = b0 xor b01 xor b02 xor ... b07
+        // value = b1 b2 B3 b4 b5 B6 B7
+        // cycle 8 times : 
+        //    --extract just one bit : LSB
+        //    --apply binary masl and logic AND 
+        //    --even = even xor b0
+        //    -- shift even to the right 
+
+        for (uint8_t i = 0; i<8;i++){
+
+          even = even ^ (value & 0x01);  // 0x01 is 0b0000_0001 which is our mask 
+          value = value >> 1;
+        }
+          uart_puts("\tEven : ");
+          itoa(value,string,10);
+        uart_puts(string);
+        uart_puts("\r\n");
+
+
+    }
 }
