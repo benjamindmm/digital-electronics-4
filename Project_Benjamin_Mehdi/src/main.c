@@ -24,7 +24,10 @@
  *     A+K  - Back-light enabled/disabled by PB2
  * 
  **********************************************************************/
+////////////////////////////////////////////////////////////////////////////////////
+#define JOY_PUSH PB2  //Encoder push button definition
 
+////////////////////////////////////////////////////////////////////////////////////
 /* Includes ----------------------------------------------------------*/
 #include <avr/io.h>         // AVR device-specific IO definitions
 #include <avr/interrupt.h>  // Interrupts standard C library for AVR-GCC
@@ -32,7 +35,6 @@
 #include "timer.h"          // Timer library for AVR-GCC
 #include <lcd.h>            // Peter Fleury's LCD library
 #include <stdlib.h>         // C library. Needed for number conversions
-#include "joystick_definitions.h"
 
 /* Function definitions ----------------------------------------------*/
 /**********************************************************************
@@ -45,6 +47,11 @@ int main(void)
 {   
     // Initialize display
     lcd_init(LCD_DISP_ON);
+////////////////////////////////////////////////////////////////////////////////////
+    GPIO_mode_input_pullup(&DDRB, JOY_PUSH);
+
+////////////////////////////////////////////////////////////////////////////////////
+
     lcd_gotoxy(1, 0); lcd_puts("Y:");
     lcd_gotoxy(1, 1); lcd_puts("X:");
 
@@ -55,31 +62,7 @@ int main(void)
         lcd_data(customChar[i]);
     */lcd_command(1<<LCD_DDRAM);       // Set addressing back to DDRAM (Display Data RAM)
                                      // ie to character codes
-    
    
-
-    // Display symbol with Character code 0
-    
-    lcd_putc(0x00);
-    // Initialize display
-    //lcd_init(LCD_DISP_ON_CURSOR_BLINK);
-
-    // Put string(s) on LCD screen
-    //lcd_gotoxy(6, 1);
-    //lcd_puts("LCD Test");
-    //lcd_putc('!');
-
-    //question 7 
-    //lcd_clrscr();
-    /*lcd_gotoxy(1,0);
-    lcd_puts("00:00.0");
-    lcd_gotoxy(11,0);
-    lcd_putc('a');
-    lcd_gotoxy(1,1);
-    lcd_puts("b");
-    lcd_gotoxy(11,1);
-    lcd_puts("c");
-    */// set black light at PB2
     GPIO_mode_output(&DDRB, PB2);
     GPIO_write_high(&PORTB,PB2);
 
@@ -99,6 +82,8 @@ int main(void)
     TIM1_overflow_33ms();
     TIM1_overflow_interrupt_enable();
 
+    TIM2_overflow_4ms();
+    TIM2_overflow_interrupt_enable();
     // Enables interrupts by setting the global interrupt mask
     sei();
 
@@ -125,7 +110,58 @@ ISR(TIMER1_OVF_vect)
     // Start ADC conversion
     ADCSRA = ADCSRA | (1<<ADSC);
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Interrupt service routines ----------------------------------------*/
+/**********************************************************************************
+ * Function: Timer/Counter2 overflow interrupt
+ * Purpose: Every 4ms, read encoder's and push buttons' values and display them
+ *          on the LCD screen according to application.
+ *          Timer has been set to 4ms for one reason: Time of pulse of the encoder
+ *          is estimated 10ms. If a Timer is used which overflows in more than 10ms,
+ *          we can lose changes of state of the encoder.
+ *********************************************************************************/
+ISR(TIMER2_OVF_vect)
+{
 
+      //Encoder definitions
+    static uint8_t aLastState = 0;
+    static uint8_t aState=0;
+    static uint8_t bState=0;
+
+    uint8_t Push_Joystick;
+
+    Push_Joystick = GPIO_read(&PINB, JOY_PUSH);
+
+     if (Push_Joystick == 0){
+      lcd_clrscr();
+      lcd_gotoxy(1,6);
+      lcd_puts("BUZZER");
+     }
+/*
+     //Loop to know in which direction encoder is turning
+    aState = GPIO_read(&PINB, ENCODER_OA);
+     // If the previous and the current state of the outputA are different, that means a pulse has occured.
+    if(aLastState != aState){
+        lcd_clrscr();
+        bState = GPIO_read(&PINB, ENCODER_OB);
+      
+        // Let's compare a and b states
+        if(aState != bState){
+          //If a and b states are different, this means encoder is rotating clockwise.
+          lcd_gotoxy(7, 0);
+          lcd_puts("Accelerate");
+        }else{
+          //Encoder is rotating counter clockwise.
+          lcd_gotoxy(7, 0);
+          lcd_puts("Deccelerate");   
+        }
+        aLastState = aState;
+      }  
+      
+    }
+    */
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**********************************************************************
  * Function: ADC complete interrupt
@@ -165,8 +201,6 @@ ISR(ADC_vect)
     if (value <530 && value>500){
         lcd_gotoxy(7, 1);
         lcd_puts("      ");
-        lcd_gotoxy(13, 1);
-        lcd_puts("      ");
         lcd_gotoxy(7, 1);
         lcd_puts("CENTER");
     }
@@ -190,17 +224,20 @@ ISR(ADC_vect)
         lcd_gotoxy(13, 1);
         lcd_puts("      ");
         lcd_gotoxy(13, 1);
-        lcd_puts("-R");
+        lcd_puts("-L");
     }
     if( value < 480){
         lcd_gotoxy(13, 1);
         lcd_puts("      ");
         lcd_gotoxy(13, 1);
-        lcd_puts("-L");
+        lcd_puts("-R");
     }
-
+    if ( value < 520 && value > 500){
+        lcd_gotoxy(13, 1);
+        lcd_puts("      ");
     }
-
+    break;
+    }
 
     
     // Read converted value
@@ -209,60 +246,9 @@ ISR(ADC_vect)
     // Convert "value" to "string" and display it
 
 
-    //print the decimal value converted into hexa
-    itoa(channel, string, 10);
-    lcd_gotoxy(13,0);
-    lcd_puts("   ");
-    lcd_gotoxy(13, 0);
-    lcd_puts(string);
 
 
 
 
-    
-    /*switch (xvalue)
-    {
-      case (520 < xvalue):
-        lcd_gotoxy(8, 1);
-        lcd_puts("      ");
-        lcd_gotoxy(8, 1);
-        lcd_puts("none");
-        break;
 
-      case 640:
-        lcd_gotoxy(8, 1);
-        lcd_puts("      ");
-        lcd_gotoxy(8, 1);
-        lcd_puts("SELECT");
-        break;
-
-      case 409:
-        lcd_gotoxy(8, 1);
-        lcd_puts("      ");
-        lcd_gotoxy(8, 1);
-        lcd_puts("LEFT");
-        break;
-
-      case 257:
-        lcd_gotoxy(8, 1);
-        lcd_puts("      ");
-        lcd_gotoxy(8, 1);
-        lcd_puts("DOWN");
-        break;
-
-      case 99:
-        lcd_gotoxy(8, 1);
-        lcd_puts("      ");
-        lcd_gotoxy(8, 1);
-        lcd_puts("UP");
-        break;
-
-      case 0:
-        lcd_gotoxy(8, 1);
-        lcd_puts("      ");
-        lcd_gotoxy(8, 1);
-        lcd_puts("RIGHT");
-        break;
-    }
-    */
 }

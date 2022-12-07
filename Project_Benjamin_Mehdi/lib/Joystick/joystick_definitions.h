@@ -1,9 +1,0 @@
-#ifndef JOYSTICK_DEFINITIONS_H
-# define JOYSTICK_DEFINITIONS_H
-
-#define JOY_X_VALUE PB5
-
-#define JOY_Y_VALUE PB4
-
-
-#endif
