@@ -1,11 +1,48 @@
+# digital-electronics-2
+Repository for the course labs
+# Team members
+- Mehdi Bennani
+- Benjamin Della Maggiore Mahiques
 
-This directory is intended for PlatformIO Test Runner and project tests.
+# Lab 1
+# Hardware description
 
-Unit Testing is a software testing method by which individual units of
-source code, sets of one or more MCU program modules together with associated
-control data, usage procedures, and operating procedures, are tested to
-determine whether they are fit for use. Unit testing finds problems early
-in the development cycle.
+## H2 header
+- Arduino Uno with AtmelMega328P MCU
+- Joystick with 2ADC signals and a switch
+- Digilent PmodCLP LCD module
+- A breadboard
 
-More information about PlatformIO Unit Testing:
-- https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+### H3 header
+## Arduino Uno ATmega328P
+
+#### Unordered list
+- *italics*
+- **bold**
+
+#### Ordered list
+1. *italics*
+2. **bold**
+## Joystick
+
+#### Link to github
+https://github.com/
+## Digilent PmodCLP LCD module
+
+#### Table 
+## Breadboard
+
+#### Listing of C source code (with syntax highlighting)
+# Software descfription
+
+## GPIO
+
+## LCD
+
+## Main
+
+## Flow chart
+
+# Video
+
+# References
