@@ -2,7 +2,7 @@
 Repository for the course labs
 # Team members
 - Mehdi Bennani
-- Benjamin Della Maggiore Mahiques
+- Benjamin Della Maggiore Mahiquess
 
 # Lab 1
 # Hardware description
